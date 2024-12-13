@@ -1,7 +1,7 @@
 manifestVersion: "1.0"
 
 projects:
-  - name: bizevent-sensors
+  - name: builtinbizevents.http.incoming
     path: monaco-configs/builtinbizevents.http.incoming
     type: grouping
   
