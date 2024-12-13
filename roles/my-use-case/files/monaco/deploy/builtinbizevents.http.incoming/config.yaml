@@ -1,0 +1,50 @@
+configs:
+  - id: statuscreated
+    config:
+      name: "Status Created"
+      template: "statuscreated.json"
+      skip: false
+    type:
+      settings:
+        schema: builtin:bizevents.http.incoming
+        scope: environment
+
+  - id: statusdelivered
+    config:
+      name: "Status Delivered"
+      template: "statusdelivered.json"
+      skip: false
+    type:
+      settings:
+        schema: builtin:bizevents.http.incoming
+        scope: environment
+
+  - id: statuserror
+    config:
+      name: "Status Error"
+      template: "statuserror.json"
+      skip: false
+    type:
+      settings:
+        schema: builtin:bizevents.http.incoming
+        scope: environment
+
+  - id: statusshipped
+    config:
+      name: "Status Shipped"
+      template: "statusshipped.json"
+      skip: false
+    type:
+      settings:
+        schema: builtin:bizevents.http.incoming
+        scope: environment
+
+  - id: v1Orders
+    config:
+      name: "V1 Orders"
+      template: "v1Orders.json"
+      skip: false
+    type:
+      settings:
+        schema: builtin:bizevents.http.incoming
+        scope: environment
