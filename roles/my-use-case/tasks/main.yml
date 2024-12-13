@@ -1,3 +1,68 @@
----
-- debug:
-    msg: "Hello from your external use case!"
+- name: Install Biz Flow App
+  ignore_errors: true
+  include_role:
+    name: dt-platform
+    tasks_from: ensure-app
+  vars:
+    dt_app_id: "{{ item.dt_app_id }}"
+    dt_environment_url_gen3: "{{ extra_vars.dt_environment_url_gen3 }}"
+    dt_oauth_sso_endpoint: "{{ extra_vars.dt_oauth_sso_endpoint }}"
+    dt_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
+    dt_oauth_client_secret: "{{ extra_vars.dt_oauth_client_secret }}"
+    dt_oauth_account_urn: "{{ extra_vars.dt_oauth_account_urn }}"
+  loop:
+    - dt_app_id: "dynatrace.biz.flow"
+      dt_app_version: "1.20.3"
+
+# EasyTrade configuration
+- name: Install EasyTrade Application
+  include_role:
+    name: app-easytrade
+  vars:
+    easytrade_namespace: "easytrade"  # Namespace for EasyTrade app
+    easytrade_base_url: "{{ extra_vars.dt_environment_url_gen3 }}"
+    easytrade_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
+    easytrade_oauth_client_secret: "{{ extra_vars.dt_oauth_client_secret }}"
+    easytrade_oauth_account_urn: "{{ extra_vars.dt_oauth_account_urn }}"
+    easytrade_ingress:
+      enabled: true
+      host: "easytrade.example.com"
+      tls: false
+    easytrade_replicas: 2  # Number of replicas for EasyTrade
+    easytrade_image:
+      repository: "dynatrace/easytrade"
+      tag: "latest"
+      pullPolicy: "IfNotPresent"
+
+# Monaco configuration
+- name: Configure Monaco templates
+  include_role:
+    name: monaco
+  vars:
+    monaco_projects:
+      - name: "BusinessAnalytics"
+        path: "/path/to/monaco/projects/business-analytics"
+        environment:
+          url: "{{ extra_vars.dt_environment_url_gen3 }}"
+          apiToken: "{{ extra_vars.dt_api_token }}"
+        config:
+          - project: "business-analytics"
+          - environments: "/path/to/monaco/environments.yaml"
+      - name: "KubernetesMonitoring"
+        path: "/path/to/monaco/projects/kubernetes-monitoring"
+        environment:
+          url: "{{ extra_vars.dt_environment_url_gen3 }}"
+          apiToken: "{{ extra_vars.dt_api_token }}"
+        config:
+          - project: "kubernetes-monitoring"
+          - environments: "/path/to/monaco/environments.yaml"
+
+# Uncomment as needed
+# - block:
+#     - name: Install Kubernetes
+#       include_role:
+#         name: k3s
+#   become: true
+# - name: Install dt operator
+#   include_role:
+#     name: dt-operator
