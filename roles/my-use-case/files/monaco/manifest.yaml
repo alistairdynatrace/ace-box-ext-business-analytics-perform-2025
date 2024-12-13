@@ -2,7 +2,7 @@ manifestVersion: "1.0"
 
 projects:
   - name: builtinbizevents.http.incoming
-    path: monaco-configs/builtinbizevents.http.incoming
+    path: deploy/builtinbizevents.http.incoming
     type: grouping
   
   environmentGroups:
