@@ -1,5 +1,5 @@
 {
     "enabled": true,
     "instrumentation": true,
-    "key": "{{ .featureKey }}"
+    "key": "SENSOR_JAVA_BIZEVENTS_HTTP_INCOMING"
 }
