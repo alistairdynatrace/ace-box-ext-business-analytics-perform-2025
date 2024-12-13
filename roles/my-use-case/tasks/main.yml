@@ -14,60 +14,57 @@
     - dt_app_id: "dynatrace.biz.flow"
       dt_app_version: "1.20.3"
 
-# OneAgent
-- name: Install dt operator
-  include_role:
-    name: dt-operator
+- name: Pause for 5 Minute
+  ansible.builtin.pause:
+    minutes: 5
 
-# EasyTrade configuration
-- name: Install EasyTrade Application
-  include_role:
-    name: app-easytrade
+- include_role:
+    name: monaco-v2
+
+- include_role:
+    name: monaco-v2
+    tasks_from: apply-monaco
   vars:
-    easytrade_namespace: "easytrade"  # Namespace for EasyTrade app
-    easytrade_base_url: "{{ extra_vars.dt_environment_url_gen3 }}"
-    easytrade_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
-    easytrade_oauth_client_secret: "{{ extra_vars.dt_oauth_client_secret }}"
-    easytrade_oauth_account_urn: "{{ extra_vars.dt_oauth_account_urn }}"
-    easytrade_ingress:
-      enabled: true
-      host: "easytrade.example.com"
-      tls: false
-    easytrade_replicas: 2  # Number of replicas for EasyTrade
-    easytrade_image:
-      repository: "dynatrace/easytrade"
-      tag: "latest"
-      pullPolicy: "IfNotPresent"
+    monaco_projects_root: "{{role_path_abs}}/files/monaco"  # monaco projects root folder path
+    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
+    monaco_manifest_path: "{{role_path_abs}}/files/monaco/manifest.yaml"
+    monaco_environment:
+      #SLACK_TOKEN: "{{ extra_vars.slack_token }}"
+      JIRA_CONNECTION_TOKEN: "{{ extra_vars.jira_connection_token }}"
+      DT_API_TOKEN: "{{ monaco_cleanup_api_token }}"
+      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3 }}"
+      DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
+      DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
+      DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
+      INGRESS_DOMAIN: "{{ ingress_domain }}"
 
-# Monaco configuration
-- name: Configure Monaco templates
-  include_role:
-    name: monaco
+- include_role:
+    name: monaco-v2
+    tasks_from: apply-monaco
   vars:
-    monaco_projects:
-      - name: "BusinessAnalytics"
-        path: "/path/to/monaco/projects/business-analytics"
-        environment:
-          url: "{{ extra_vars.dt_environment_url_gen3 }}"
-          apiToken: "{{ extra_vars.dt_api_token }}"
-        config:
-          - project: "business-analytics"
-          - environments: "/path/to/monaco/environments.yaml"
-      - name: "KubernetesMonitoring"
-        path: "/path/to/monaco/projects/kubernetes-monitoring"
-        environment:
-          url: "{{ extra_vars.dt_environment_url_gen3 }}"
-          apiToken: "{{ extra_vars.dt_api_token }}"
-        config:
-          - project: "kubernetes-monitoring"
-          - environments: "/path/to/monaco/environments.yaml"
+    monaco_projects_root: "{{role_path_abs}}/files/monaco_platform"  # monaco projects root folder path
+    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
+    monaco_manifest_path: "{{role_path_abs}}/files/monaco_platform/manifest.yaml"
+    monaco_environment:
+      #SLACK_TOKEN: "{{ extra_vars.slack_token }}"
+      DT_API_TOKEN: "{{ monaco_cleanup_api_token }}"
+      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3 }}"
+      DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
+      DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
+      DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
 
-# Uncomment as needed
-# - block:
-#     - name: Install Kubernetes
-#       include_role:
-#         name: k3s
-#   become: true
-# - name: Install dt operator
-#   include_role:
-#     name: dt-operator
+- include_role:
+    name: microk8s
+- include_role:
+    name: dt-operator-version-detection
+  vars:
+    dt_operator_release: "v1.4.0"
+- include_role:
+    name: appsec-srg-gitlab
+
+- name: Pause for 5 Minute
+  ansible.builtin.pause:
+    minutes: 5
+
+- include_role:
+    name: easytrade
