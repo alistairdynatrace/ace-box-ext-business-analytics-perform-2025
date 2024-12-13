@@ -1,4 +1,4 @@
-manifestVersion: 1.0
+manifestVersion: "1.0"
 
 projects:
   - name: bizevent-sensors
