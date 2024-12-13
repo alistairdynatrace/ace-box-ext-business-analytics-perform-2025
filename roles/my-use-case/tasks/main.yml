@@ -124,6 +124,10 @@
 - debug:
     msg: "Monaco Complete"
 
+- name: Pause for 5 Minute
+  ansible.builtin.pause:
+    minutes: 5
+
 - debug:
     msg: "App Deployment Started"
     
