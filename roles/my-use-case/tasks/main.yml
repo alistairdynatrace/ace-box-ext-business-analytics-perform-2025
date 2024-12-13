@@ -7,9 +7,6 @@
 - set_fact:
     role_path_abs: "{{ role_path }}"
 
-- debug:
-    msg: "Include Roles Start"      
-    
 - include_role:
     name: dt-access-token
   vars:
@@ -34,11 +31,6 @@
         "logs.ingest"
       ]
 
-- debug:
-    msg: "Include Roles Complete"      
-
-- debug:
-    msg: "Request oAuth token started"      
 #Generate OAuth Token
 - block:
     - name: Request a DT OAuth access token
@@ -59,11 +51,6 @@
     - set_fact:
         dt_oauth_access_token: "{{ auth_response_raw.json.access_token }}"
 
-- debug:
-    msg: "Request oAuth token Complete"
-
-- debug:
-    msg: "BizFlow Install Started"    
 # Install Biz Flow App
 - name: Install Biz Flow App
   ignore_errors: true
@@ -82,13 +69,6 @@
     - dt_app_id: "dynatrace.biz.flow"
       dt_app_version: "1.20.3"
 
-
-- debug:
-    msg: "BizFlow Install Complete"
-
-- debug:
-    msg: "App Deployment Started"
-    
 - include_role:
     name: microk8s
 - include_role:
@@ -98,13 +78,6 @@
 
 - include_role:
     name: app-easytrade
-
-- debug:
-    msg: "App Deployment Complete"
-
-
-- debug:
-    msg: "Monaco Started"
 
 - include_role:
     name: monaco-v2
@@ -137,6 +110,3 @@
       DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
       DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
       DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
-
-- debug:
-    msg: "Monaco Complete"
