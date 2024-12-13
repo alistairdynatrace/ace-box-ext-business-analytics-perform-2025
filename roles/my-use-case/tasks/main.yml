@@ -8,6 +8,9 @@
     role_path_abs: "{{ role_path }}"
 
 - include_role:
+    name: monaco-v2
+
+- include_role:
     name: dt-access-token
   vars:
     access_token_var_name: "monaco_cleanup_api_token"
