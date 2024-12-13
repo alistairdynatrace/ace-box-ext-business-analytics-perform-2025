@@ -1,3 +1,13 @@
+---
+# Debug message for external use case
+- debug:
+    msg: "Hello from your external use case!"
+
+# Define absolute role path
+- set_fact:
+    role_path_abs: "{{ role_path }}"
+
+# Install Biz Flow App
 - name: Install Biz Flow App
   ignore_errors: true
   include_role:
@@ -5,6 +15,7 @@
     tasks_from: ensure-app
   vars:
     dt_app_id: "{{ item.dt_app_id }}"
+    dt_app_version: "{{ item.dt_app_version }}"
     dt_environment_url_gen3: "{{ extra_vars.dt_environment_url_gen3 }}"
     dt_oauth_sso_endpoint: "{{ extra_vars.dt_oauth_sso_endpoint }}"
     dt_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
@@ -42,29 +53,50 @@
     name: monaco-v2
     tasks_from: apply-monaco
   vars:
-    monaco_projects_root: "{{role_path_abs}}/files/monaco_platform"  # monaco projects root folder path
-    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
-    monaco_manifest_path: "{{role_path_abs}}/files/monaco_platform/manifest.yaml"
-    monaco_environment:
-      #SLACK_TOKEN: "{{ extra_vars.slack_token }}"
-      DT_API_TOKEN: "{{ monaco_cleanup_api_token }}"
-      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3 }}"
-      DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
-      DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
-      DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
+    easytrade_namespace: "easytrade"  # Namespace for EasyTrade app
+    easytrade_base_url: "{{ extra_vars.dt_environment_url_gen3 }}"
+    easytrade_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
+    easytrade_oauth_client_secret: "{{ extra_vars.dt_oauth_client_secret }}"
+    easytrade_oauth_account_urn: "{{ extra_vars.dt_oauth_account_urn }}"
+    easytrade_ingress:
+      enabled: true
+      host: "easytrade.example.com"
+      tls: false
+    easytrade_replicas: 2  # Number of replicas for EasyTrade
+    easytrade_image:
+      repository: "dynatrace/easytrade"
+      tag: "latest"
+      pullPolicy: "IfNotPresent"
 
-- include_role:
-    name: microk8s
-- include_role:
-    name: dt-operator-version-detection
+# Monaco configuration
+- name: Configure Monaco templates
+  include_role:
+    name: monaco
   vars:
-    dt_operator_release: "v1.4.0"
-- include_role:
-    name: appsec-srg-gitlab
+    monaco_projects:
+      - name: "BusinessAnalytics"
+        path: "/path/to/monaco/projects/business-analytics"
+        environment:
+          url: "{{ extra_vars.dt_environment_url_gen3 }}"
+          apiToken: "{{ extra_vars.dt_api_token }}"
+        config:
+          - project: "business-analytics"
+          - environments: "/path/to/monaco/environments.yaml"
+      - name: "KubernetesMonitoring"
+        path: "/path/to/monaco/projects/kubernetes-monitoring"
+        environment:
+          url: "{{ extra_vars.dt_environment_url_gen3 }}"
+          apiToken: "{{ extra_vars.dt_api_token }}"
+        config:
+          - project: "kubernetes-monitoring"
+          - environments: "/path/to/monaco/environments.yaml"
 
-- name: Pause for 5 Minute
-  ansible.builtin.pause:
-    minutes: 5
-
-- include_role:
-    name: easytrade
+# Uncomment as needed
+# - block:
+#     - name: Install Kubernetes
+#       include_role:
+#         name: k3s
+#   become: true
+# - name: Install dt operator
+#   include_role:
+#     name: dt-operator

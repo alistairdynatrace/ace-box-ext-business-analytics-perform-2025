@@ -1,5 +1,5 @@
 configs:
-    - id: statuscreated
+  - id: statuscreated
     config:
       name: Status Created
       template: statuscreated.json
