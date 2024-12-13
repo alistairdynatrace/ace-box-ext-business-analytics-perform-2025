@@ -1,3 +1,4 @@
 ---
 # Default overrides
-my_var_override: foobar
+apply_monaco_easytrade: true
+

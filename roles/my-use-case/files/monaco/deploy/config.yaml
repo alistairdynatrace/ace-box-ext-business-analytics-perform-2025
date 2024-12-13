@@ -1,7 +1,7 @@
 configs:
   - id: statuscreated
     config:
-      name: Status Created
+      name: StatusCreated
       template: statuscreated.json
       skip: false
     type:
@@ -11,7 +11,7 @@ configs:
 
   - id: statusdelivered
     config:
-      name: Status Delivered
+      name: StatusDelivered
       template: statusdelivered.json
       skip: false
     type:
@@ -21,7 +21,7 @@ configs:
 
   - id: statuserror
     config:
-      name: Status Error
+      name: StatusError
       template: statuserror.json
       skip: false
     type:
@@ -31,7 +31,7 @@ configs:
 
   - id: statusshipped
     config:
-      name: Status Shipped
+      name: StatusShipped
       template: statusshipped.json
       skip: false
     type:
@@ -41,10 +41,30 @@ configs:
 
   - id: v1Orders
     config:
-      name: V1 Orders
+      name: V1Orders
       template: v1Orders.json
       skip: false
     type:
       settings:
         schema: builtin:bizevents.http.incoming
         scope: environment
+
+- id: SENSOR_DOTNET_BIZEVENTS_HTTP_INCOMING
+  config:
+    name: name
+    template: SENSOR_DOTNET_BIZEVENTS_HTTP_INCOMING.json
+    skip: false
+  type:
+    settings:
+      schema: builtin:oneagent.features
+      scope: environment
+
+- id: SENSOR_JAVA_BIZEVENTS_HTTP_INCOMING
+  config:
+    name: name
+    template: SENSOR_JAVA_BIZEVENTS_HTTP_INCOMING.json
+    skip: false
+  type:
+    settings:
+      schema: builtin:oneagent.features
+      scope: environment

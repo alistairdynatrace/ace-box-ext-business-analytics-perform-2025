@@ -1,11 +1,9 @@
 manifestVersion: "1.0"
-
 projects:
-  - name: builtinbizevents.http.incoming
-    path: deploy/builtinbizevents.http.incoming
-    type: grouping
-  
-  environmentGroups:
+- name: deploy
+environmentGroups:
+- name: default
+  environments:
       - name: perform
         url:
           type: environment
