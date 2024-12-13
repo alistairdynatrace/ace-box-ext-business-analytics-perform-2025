@@ -1,3 +1,6 @@
+- set_fact:
+    role_path_abs: "{{ role_path }}"
+
 - name: Install Biz Flow App
   ignore_errors: true
   include_role:
@@ -40,27 +43,13 @@
       pullPolicy: "IfNotPresent"
 
 # Monaco configuration
-- name: Configure Monaco templates
-  include_role:
-    name: monaco
+- include_role:
+    name: monaco-v2
+    tasks_from: apply-monaco
   vars:
-    monaco_projects:
-      - name: "BusinessAnalytics"
-        path: "/path/to/monaco/projects/business-analytics"
-        environment:
-          url: "{{ extra_vars.dt_environment_url_gen3 }}"
-          apiToken: "{{ extra_vars.dt_api_token }}"
-        config:
-          - project: "business-analytics"
-          - environments: "/path/to/monaco/environments.yaml"
-      - name: "KubernetesMonitoring"
-        path: "/path/to/monaco/projects/kubernetes-monitoring"
-        environment:
-          url: "{{ extra_vars.dt_environment_url_gen3 }}"
-          apiToken: "{{ extra_vars.dt_api_token }}"
-        config:
-          - project: "kubernetes-monitoring"
-          - environments: "/path/to/monaco/environments.yaml"
+    monaco_projects_root: "{{role_path_abs}}/files/monaco"  # monaco projects root folder path
+    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
+    monaco_manifest_path: "{{role_path_abs}}/files/monaco/manifest.yaml"
 
 # Uncomment as needed
 # - block:
