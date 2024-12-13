@@ -1,0 +1,105 @@
+{
+  "summary": "EasyTrade \\[credit\\-card\\-order\\-service | Java\\] \\- POST /v1/orders/\\{id\\}/status:created",
+  "searchSummary": "EasyTrade [credit-card-order-service | Java] - POST /v1/orders/{id}/status:created",
+  "created": 1734087076024,
+  "modified": 1734087076024,
+  "author": "Dynatrace support user #431900970",
+  "updateToken": "vu9U3hXY3q0ATAAkOTI3ZTA3OTYtNjk4Zi0zY2VlLWEyNzQtN2ZlYjVkYTg4MWNmACQyZDQzZDM4MC1iOTQwLTExZWYtODAwMS0wMTAwMDAwMDAwMDa-71TeFdjerQ",
+  "scope": "environment",
+  "schemaId": "builtin:bizevents.http.incoming",
+  "schemaVersion": "1.0.3",
+  "resourceContext": {
+    "operations": [
+      "read",
+      "write",
+      "delete"
+    ],
+    "modifications": {
+      "movable": true,
+      "modifiablePaths": [],
+      "nonModifiablePaths": []
+    }
+  },
+  "value": {
+    "enabled": false,
+    "ruleName": "EasyTrade [credit-card-order-service | Java] - POST /v1/orders/{id}/status:created",
+    "triggers": [
+      {
+        "source": {
+          "dataSource": "request.path"
+        },
+        "type": "STARTS_WITH",
+        "value": "/v1/orders",
+        "caseSensitive": false
+      },
+      {
+        "source": {
+          "dataSource": "request.path"
+        },
+        "type": "ENDS_WITH",
+        "value": "/status",
+        "caseSensitive": false
+      },
+      {
+        "source": {
+          "dataSource": "request.method"
+        },
+        "type": "EQUALS",
+        "value": "POST",
+        "caseSensitive": false
+      },
+      {
+        "source": {
+          "dataSource": "request.body",
+          "path": "type"
+        },
+        "type": "EQUALS",
+        "value": "CARD_CREATED",
+        "caseSensitive": false
+      }
+    ],
+    "event": {
+      "provider": {
+        "sourceType": "constant.string",
+        "source": "www.easytrade.com"
+      },
+      "type": {
+        "sourceType": "constant.string",
+        "source": "com.easytrade.update-credit-card-status.created"
+      },
+      "category": {
+        "sourceType": "request.path"
+      },
+      "data": [
+        {
+          "name": "type",
+          "source": {
+            "sourceType": "request.body",
+            "path": "type"
+          }
+        },
+        {
+          "name": "timestamp",
+          "source": {
+            "sourceType": "request.body",
+            "path": "timestamp"
+          }
+        },
+        {
+          "name": "orderId",
+          "source": {
+            "sourceType": "request.body",
+            "path": "orderId"
+          }
+        },
+        {
+          "name": "details",
+          "source": {
+            "sourceType": "request.body",
+            "path": "details"
+          }
+        }
+      ]
+    }
+  }
+}
