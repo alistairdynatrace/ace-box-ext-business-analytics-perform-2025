@@ -1,6 +1,13 @@
+---
+# Debug message for external use case
+- debug:
+    msg: "Hello from your external use case!"
+
+# Define absolute role path
 - set_fact:
     role_path_abs: "{{ role_path }}"
 
+# Install Biz Flow App
 - name: Install Biz Flow App
   ignore_errors: true
   include_role:
@@ -8,6 +15,7 @@
     tasks_from: ensure-app
   vars:
     dt_app_id: "{{ item.dt_app_id }}"
+    dt_app_version: "{{ item.dt_app_version }}"
     dt_environment_url_gen3: "{{ extra_vars.dt_environment_url_gen3 }}"
     dt_oauth_sso_endpoint: "{{ extra_vars.dt_oauth_sso_endpoint }}"
     dt_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
@@ -17,17 +25,17 @@
     - dt_app_id: "dynatrace.biz.flow"
       dt_app_version: "1.20.3"
 
-# OneAgent
+# Install Dynatrace OneAgent Operator
 - name: Install dt operator
   include_role:
     name: dt-operator
 
-# EasyTrade configuration
+# Install EasyTrade Application
 - name: Install EasyTrade Application
   include_role:
     name: app-easytrade
   vars:
-    easytrade_namespace: "easytrade"  # Namespace for EasyTrade app
+    easytrade_namespace: "easytrade"
     easytrade_base_url: "{{ extra_vars.dt_environment_url_gen3 }}"
     easytrade_oauth_client_id: "{{ extra_vars.dt_oauth_client_id }}"
     easytrade_oauth_client_secret: "{{ extra_vars.dt_oauth_client_secret }}"
@@ -36,27 +44,32 @@
       enabled: true
       host: "easytrade.example.com"
       tls: false
-    easytrade_replicas: 2  # Number of replicas for EasyTrade
+    easytrade_replicas: 2
     easytrade_image:
       repository: "dynatrace/easytrade"
       tag: "latest"
       pullPolicy: "IfNotPresent"
 
-# Monaco configuration
-- include_role:
+# Monaco Configuration
+- name: Apply Monaco Configuration
+  include_role:
     name: monaco-v2
     tasks_from: apply-monaco
   vars:
-    monaco_projects_root: "{{role_path_abs}}/files/monaco"  # monaco projects root folder path
-    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
-    monaco_manifest_path: "{{role_path_abs}}/files/monaco/manifest.yaml"
+    monaco_manifest_path: "{{ role_path_abs }}/files/monaco/manifest.yaml"
+    monaco_projects_root: "{{ role_path_abs }}/files/monaco"
+    monaco_project: "deploy"
+    monaco_environment:
+      DT_TOKEN: "{{ dynatrace_api_token }}"
+      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3 }}"
+      DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
+      DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
+      DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
+      AWX_CONTROLLER_TOKEN: "{{ awx_controller_token }}"
+      AWX_URL: "{{ ingress_protocol }}://ansible.{{ ingress_domain }}/api/v2/"
 
-# Uncomment as needed
-# - block:
-#     - name: Install Kubernetes
-#       include_role:
-#         name: k3s
-#   become: true
-# - name: Install dt operator
-#   include_role:
-#     name: dt-operator
+# Install Kubernetes
+- name: Install Kubernetes
+  include_role:
+    name: k3s
+  become: true
