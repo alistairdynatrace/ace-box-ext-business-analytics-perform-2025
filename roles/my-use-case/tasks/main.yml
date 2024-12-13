@@ -14,8 +14,10 @@
     - dt_app_id: "dynatrace.biz.flow"
       dt_app_version: "1.20.3"
 
-- include_role:
-    name: "dt-oneagent"
+# OneAgent
+- name: Install dt operator
+  include_role:
+    name: dt-operator
 
 # EasyTrade configuration
 - name: Install EasyTrade Application
