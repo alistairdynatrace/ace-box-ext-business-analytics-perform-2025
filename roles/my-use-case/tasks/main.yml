@@ -7,13 +7,6 @@
 - set_fact:
     role_path_abs: "{{ role_path }}"
 
-- include_role:
-    name: microk8s
-- include_role:
-    name: dt-operator
-
-- include_role:
-    name: app-easytrade
 
 - include_role:
     name: dt-access-token
