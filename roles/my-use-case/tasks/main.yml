@@ -125,16 +125,13 @@
 
 - include_role:
     name: microk8s
-    
+
 - include_role:
-    name: dt-operator-version-detection
-  vars:
-    dt_operator_release: "v1.4.0"
+    name: dt-operator
 
 - include_role:
     name: app-easytrade
 
-### MatterMost Test
 - name: Add Mattermost chart repo
   kubernetes.core.helm_repository:
     name: mattermost
