@@ -125,9 +125,15 @@
 
 - include_role:
     name: microk8s
-
+    
 - include_role:
-    name: dt-operator
+    name: dt-operator-version-detection
+  vars:
+    dt_operator_release: "v1.4.0"
+
+- name: Pause for 5 Minute
+  ansible.builtin.pause:
+    minutes: 5
 
 - include_role:
     name: app-easytrade
