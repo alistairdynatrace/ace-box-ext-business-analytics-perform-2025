@@ -25,13 +25,29 @@
         "logs.ingest"
       ]
 
-#Generate OAuth Token
+# Generate OAuth Token
 - block:
-    - name: Request a DT OAuth access token
+    - name: Validate required variables for OAuth
+      fail:
+        msg: "Required variables (dt_oauth_client_id, dt_oauth_client_secret, dt_oauth_sso_endpoint, dt_environment_url_gen3) are missing."
+      when:
+        - extra_vars.dt_oauth_client_id is not defined
+        - extra_vars.dt_oauth_client_secret is not defined
+        - extra_vars.dt_oauth_sso_endpoint is not defined
+        - extra_vars.dt_environment_url_gen3 is not defined
+
+    - name: Debug OAuth Configuration
+      debug:
+        msg: |
+          DT_OAUTH_CLIENT_ID: {{ extra_vars.dt_oauth_client_id }}
+          DT_OAUTH_CLIENT_SECRET: {{ extra_vars.dt_oauth_client_secret }}
+          DT_OAUTH_SSO_ENDPOINT: {{ extra_vars.dt_oauth_sso_endpoint }}
+          Resource: {{ extra_vars.dt_oauth_account_urn }}
+
+    - name: Request a DT OAuth Access Token
       ansible.builtin.uri:
         url: "{{ extra_vars.dt_oauth_sso_endpoint }}"
         method: POST
-        status_code: 200
         headers:
           Content-Type: "application/x-www-form-urlencoded"
         body_format: form-urlencoded
@@ -42,7 +58,22 @@
           scope: "document:documents:read document:documents:write document:direct-shares:read document:direct-shares:write"
           resource: "{{ extra_vars.dt_oauth_account_urn }}"
       register: auth_response_raw
-    - set_fact:
+      failed_when:
+        - auth_response_raw.status != 200
+      changed_when:
+        - auth_response_raw.status == 200
+
+    - name: Debug OAuth Response
+      debug:
+        var: auth_response_raw
+
+    - name: Validate Token Creation
+      fail:
+        msg: "OAuth token was not created. Response: {{ auth_response_raw }}"
+      when: auth_response_raw.json.access_token is not defined
+
+    - name: Set OAuth Access Token
+      set_fact:
         dt_oauth_access_token: "{{ auth_response_raw.json.access_token }}"
 
 # Install Biz Flow App
@@ -69,22 +100,32 @@
 
 - include_role:
     name: monaco-v2
+
+- include_role:
+    name: monaco-v2
     tasks_from: apply-monaco
+    apply:
+      environment:
+        DT_API_TOKEN: "{{ dynatrace_api_token }}"
+        DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3.rstrip('/') }}"
+        DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
+        DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
+        DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
+        INGRESS_DOMAIN: "{{ ingress_domain }}"
   vars:
-    monaco_projects_root: "{{role_path_abs}}/files/monaco"  # monaco projects root folder path
-    monaco_project: "deploy" # selection of projects or all projects under the root path if set empty
-    monaco_manifest_path: "{{role_path_abs}}/files/monaco/manifest.yaml"
+    monaco_projects_root: "/home/dt_training/repos/biz-analytics-perform2025/roles/my-use-case/files/monaco"
+    monaco_project: "" # selection of projects or all projects under the root path if set empty
+    monaco_manifest_path: "/home/dt_training/repos/biz-analytics-perform2025/roles/my-use-case/files/monaco/manifest.yml"
     monaco_environment:
-      #SLACK_TOKEN: "{{ extra_vars.slack_token }}"
-      JIRA_CONNECTION_TOKEN: "{{ extra_vars.jira_connection_token }}"
-      DT_API_TOKEN: "{{ monaco_cleanup_api_token }}"
-      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3 }}"
+      DT_API_TOKEN: "{{ dynatrace_api_token }}"
+      DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3.rstrip('/') }}"
       DT_OAUTH_CLIENT_ID: "{{ extra_vars.dt_oauth_client_id }}"
       DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
       DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
 
 - include_role:
     name: microk8s
+    
 - include_role:
     name: dt-operator-version-detection
   vars:
@@ -92,3 +133,75 @@
 
 - include_role:
     name: app-easytrade
+
+### MatterMost Test
+- name: Add Mattermost chart repo
+  kubernetes.core.helm_repository:
+    name: mattermost
+    repo_url: "https://helm.mattermost.com"
+
+- name: Deploy Mattermost Team Edition
+  kubernetes.core.helm:
+    name: mattermost
+    chart_ref: mattermost/mattermost-team-edition
+    release_namespace: "{{ mattermost_namespace }}"
+    create_namespace: true
+    wait: true
+    wait_timeout: 10m
+    values:
+      image:
+        tag: "{{ mattermost_image_tag }}"
+      mysql:
+        mysqlUser: admin
+        mysqlPassword: samplePassword 
+      ingress:
+        enabled: true
+        hosts:
+          - "mattermost.{{ ingress_domain }}"
+        annotations:
+          kubernetes.io/ingress.class: "{{ ingress_class }}"
+      extraEnvVars:
+        - name: MM_SERVICESETTINGS_ENABLELOCALMODE
+          value: "true"
+        - name: MM_SERVICESETTINGS_ENABLEUSERACCESSTOKENS
+          value: "true"
+
+- name: Wait for Deployment ready state
+  kubernetes.core.k8s_info:
+    kind: Deployment
+    wait: yes
+    label_selectors:
+      - "app.kubernetes.io/instance=mattermost"
+    namespace: "{{ mattermost_namespace }}"
+    wait_sleep: 10
+    wait_timeout: 300
+
+- include_tasks: create-secret.yml
+
+- include_tasks: source-secret.yml
+
+- name: Mattermost - Ensure admin user
+  include_role:
+    name: mattermost
+    tasks_from: ensure-admin
+  vars:
+    mm_admin_email: "{{ mattermost_admin_email }}"
+    mm_admin_name: "{{ mattermost_admin_name }}"
+    mm_admin_password: "{{ mattermost_password }}"
+
+- name: Mattermost - Ensure admin token
+  include_role:
+    name: mattermost
+    tasks_from: ensure-token
+  vars:
+    mm_user_name: "{{ mattermost_admin_name }}"
+    mm_token_name: "{{ mattermost_token_name }}"
+
+- name: Mattermost - Ensure team
+  include_role:
+    name: mattermost
+    tasks_from: ensure-team
+  vars:
+    mm_team_name: "{{ mattermost_team_name }}"
+    mm_admin_token: "{{ mm_token }}"
+    mm_team_display_name: "{{ mattermost_team_name }}"
