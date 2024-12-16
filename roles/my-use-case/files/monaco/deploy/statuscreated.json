@@ -1,27 +1,5 @@
 {
-  "summary": "EasyTrade \\[credit\\-card\\-order\\-service | Java\\] \\- POST /v1/orders/\\{id\\}/status:created",
-  "searchSummary": "EasyTrade [credit-card-order-service | Java] - POST /v1/orders/{id}/status:created",
-  "created": 1734087076024,
-  "modified": 1734087076024,
-  "author": "Dynatrace support user #431900970",
-  "updateToken": "vu9U3hXY3q0ATAAkOTI3ZTA3OTYtNjk4Zi0zY2VlLWEyNzQtN2ZlYjVkYTg4MWNmACQyZDQzZDM4MC1iOTQwLTExZWYtODAwMS0wMTAwMDAwMDAwMDa-71TeFdjerQ",
-  "scope": "environment",
-  "schemaId": "builtin:bizevents.http.incoming",
-  "schemaVersion": "1.0.3",
-  "resourceContext": {
-    "operations": [
-      "read",
-      "write",
-      "delete"
-    ],
-    "modifications": {
-      "movable": true,
-      "modifiablePaths": [],
-      "nonModifiablePaths": []
-    }
-  },
-  "value": {
-    "enabled": false,
+    "enabled": true,
     "ruleName": "EasyTrade [credit-card-order-service | Java] - POST /v1/orders/{id}/status:created",
     "triggers": [
       {
@@ -102,4 +80,3 @@
       ]
     }
   }
-}
