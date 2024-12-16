@@ -75,16 +75,6 @@
       dt_app_version: "1.20.3"
 
 - include_role:
-    name: microk8s
-- include_role:
-    name: dt-operator-version-detection
-  vars:
-    dt_operator_release: "v1.4.0"
-
-- include_role:
-    name: app-easytrade
-
-- include_role:
     name: monaco-v2
     tasks_from: apply-monaco
   vars:
@@ -101,3 +91,13 @@
       DT_OAUTH_CLIENT_SECRET: "{{ extra_vars.dt_oauth_client_secret }}"
       DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
       INGRESS_DOMAIN: "{{ ingress_domain }}"
+
+- include_role:
+    name: microk8s
+- include_role:
+    name: dt-operator-version-detection
+  vars:
+    dt_operator_release: "v1.4.0"
+
+- include_role:
+    name: app-easytrade
