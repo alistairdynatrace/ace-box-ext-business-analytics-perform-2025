@@ -125,18 +125,24 @@
 
 - include_role:
     name: k3s
-    
+
 - include_role:
-    name: dt-operator-version-detection
+    name: dt-operator
   vars:
-    dt_operator_release: "v1.4.0"
+    operator_mode: "classicFullStack"  
+    dt_operator_release: "v1.3.2"
+    log_monitoring: "notfluentbit"
 
-- name: Pause for 5 Minute
-  ansible.builtin.pause:
-    minutes: 5
-
-- include_role:
-    name: easytrade
+- name: app-easytrade
+  include_tasks: "{{role_path}}/files/app-easytrade/tasks/main.yaml"
+  vars:
+    easytrade_role_path: "{{role_path}}/files/app-easytrade"
+    easytrade_namespace: "easytrade"
+    easytrade_image_tag: "5aa49fb"
+    easytrade_headlessloadgen_tag: "848c2ab"
+    easytrade_domain: "easytrade.{{ ingress_domain }}"
+    easytrade_addDashboardLink: true
+    easytrade_addDashboardPreview: true
 
 - include_role:
     name: mattermost
