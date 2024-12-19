@@ -113,9 +113,9 @@
         DT_OAUTH_SSO_ENDPOINT: "{{ extra_vars.dt_oauth_sso_endpoint }}"
         INGRESS_DOMAIN: "{{ ingress_domain }}"
   vars:
-    monaco_projects_root: "/home/dt_training/repos/biz-analytics-perform2025/roles/my-use-case/files/monaco"
+    monaco_projects_root: "{{ role_path_abs }}/files/monaco"
     monaco_project: "" # selection of projects or all projects under the root path if set empty
-    monaco_manifest_path: "/home/dt_training/repos/biz-analytics-perform2025/roles/my-use-case/files/monaco/manifest.yml"
+    monaco_manifest_path: "{{ role_path_abs }}/files/monaco/manifest.yml"
     monaco_environment:
       DT_API_TOKEN: "{{ dynatrace_api_token }}"
       DT_PLATFORM_TENANT_URL: "{{ extra_vars.dt_environment_url_gen3.rstrip('/') }}"
