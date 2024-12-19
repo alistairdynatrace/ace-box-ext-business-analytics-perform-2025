@@ -144,5 +144,13 @@
     easytrade_addDashboardLink: true
     easytrade_addDashboardPreview: true
 
+- name: Set App Address facts
+  set_fact:
+    easytrade_address: "{{ ingress_protocol }}://easytrade.{{ ingress_domain }}"
+    unguard_address: "{{ ingress_protocol }}://unguard.{{ ingress_domain }}"
+
+- include_role:
+    name: dashboard
+
 - include_role:
     name: mattermost
