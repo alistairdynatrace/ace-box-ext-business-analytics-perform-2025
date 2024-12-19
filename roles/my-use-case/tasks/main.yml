@@ -133,6 +133,10 @@
     dt_operator_release: "v1.3.2"
     log_monitoring: "notfluentbit"
 
+- name: Pause for 5 Minute
+  ansible.builtin.pause:
+    minutes: 5
+
 - name: app-easytrade
   include_tasks: "{{role_path}}/files/app-easytrade/tasks/main.yaml"
   vars:
