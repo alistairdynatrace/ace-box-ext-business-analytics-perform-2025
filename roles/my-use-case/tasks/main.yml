@@ -137,21 +137,8 @@
   ansible.builtin.pause:
     minutes: 5
 
-- name: app-easytrade
-  include_tasks: "{{role_path}}/files/app-easytrade/tasks/main.yaml"
-  vars:
-    easytrade_role_path: "{{role_path}}/files/app-easytrade"
-    easytrade_namespace: "easytrade"
-    easytrade_image_tag: "8831949"
-    easytrade_headlessloadgen_tag: "848c2ab"
-    easytrade_domain: "easytrade.{{ ingress_domain }}"
-    easytrade_addDashboardLink: true
-    easytrade_addDashboardPreview: true
-
-- name: Set App Address facts
-  set_fact:
-    easytrade_address: "{{ ingress_protocol }}://easytrade.{{ ingress_domain }}"
-    unguard_address: "{{ ingress_protocol }}://unguard.{{ ingress_domain }}"
+- include_role:
+    name: app-easytrade
 
 - include_role:
     name: dashboard
