@@ -44,7 +44,7 @@
           "name": "orderId",
           "source": {
             "sourceType": "response.body",
-            "path": "orderId"
+            "path": "results.creditCardOrderId"
           }
         },
         {
