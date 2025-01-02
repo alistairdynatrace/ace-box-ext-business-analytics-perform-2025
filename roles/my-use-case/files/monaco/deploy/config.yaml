@@ -68,3 +68,12 @@ configs:
       settings:
         schema: builtin:oneagent.features
         scope: environment
+
+ - id: openpipeline-revenue-addition
+    type:
+      openpipeline:
+        kind: bizevents
+    config:
+      name: Revenue
+      template: revenuePipeline.json
+      skip: false
