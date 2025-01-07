@@ -141,7 +141,7 @@
     name: app-easytrade
 
 - include_role:
-    name: dashboard
+    name: mattermost
 
 - include_role:
-    name: mattermost
+    name: dashboard
